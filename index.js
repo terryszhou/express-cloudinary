@@ -5,7 +5,8 @@ var ejsLayouts = require('express-ejs-layouts');
 var app = express();
 var multer = require('multer')
 var upload = multer({ dest: './uploads/'})
-var cloudinary = require('cloudinary')
+var cloudinary = require('cloudinary');
+const { request, response } = require('express');
 
 // MIDDLEWARE ----------------
 app.set('view engine', 'ejs');
@@ -20,7 +21,12 @@ app.get('/', function(req, res) {
 
 // POST / FILE UPLOAD
 app.post('/', upload.single('myFile'), (req, res) => {
-  res.send(req.file)
+  cloudinary.uploader.upload(req.file.path, (result) => {
+    var imageId = `${result.public_id}.jpg`
+    var src = cloudinary.image(imageId, {effect: "grayscale"})
+    console.log(src)
+    res.render('image', {imgSrc: src})
+  })
 })
 
 // LISTEN TO PORT ----------------
